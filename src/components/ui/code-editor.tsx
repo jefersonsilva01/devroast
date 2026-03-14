@@ -17,6 +17,7 @@ export interface CodeEditorProps {
 	className?: string;
 	language?: LanguageId | "auto";
 	onLanguageDetected?: (language: LanguageId | null) => void;
+	maxLength?: number;
 }
 
 export function CodeEditor({
@@ -27,6 +28,7 @@ export function CodeEditor({
 	className,
 	language: initialLanguage,
 	onLanguageDetected,
+	maxLength = 10000,
 }: CodeEditorProps) {
 	const id = useId();
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -40,6 +42,7 @@ export function CodeEditor({
 	);
 
 	const effectiveLanguage = language === "auto" ? detectedLanguage : language;
+	const isOverLimit = value.length > maxLength;
 
 	const highlightedCode = useMemo(() => {
 		if (!effectiveLanguage || !value) return "";
@@ -60,7 +63,10 @@ export function CodeEditor({
 	}, [value, language, onLanguageDetected]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		onChange?.(e.target.value);
+		const newValue = e.target.value;
+		if (newValue.length <= maxLength) {
+			onChange?.(newValue);
+		}
 	};
 
 	const handleScroll = () => {
@@ -119,8 +125,16 @@ export function CodeEditor({
 				/>
 			</div>
 
-			{/* Language selector */}
-			<div className="absolute bottom-2 right-2 flex items-center gap-2">
+			{/* Language selector and counter */}
+			<div className="absolute bottom-2 right-2 flex items-center gap-3">
+				<span
+					className={cn(
+						"font-mono text-xs",
+						isOverLimit ? "text-accent-red" : "text-text-tertiary",
+					)}
+				>
+					{value.length}/{maxLength}
+				</span>
 				<select
 					value={language}
 					onChange={(e) => setLanguage(e.target.value as LanguageId | "auto")}

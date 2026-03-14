@@ -24,6 +24,8 @@ const MOCK_CODE = `function calculateTotal(items) {
 export default function HomePage() {
 	const [code, setCode] = useState(MOCK_CODE);
 	const [roastMode, setRoastMode] = useState(false);
+	const MAX_LENGTH = 10000;
+	const isOverLimit = code.length > MAX_LENGTH;
 
 	return (
 		<main className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center px-10 py-8">
@@ -52,6 +54,7 @@ export default function HomePage() {
 						value={code}
 						onChange={setCode}
 						placeholder="Paste your code here..."
+						maxLength={MAX_LENGTH}
 					/>
 				</div>
 
@@ -69,7 +72,7 @@ export default function HomePage() {
 							{"//"} maximum sarcasm enabled
 						</span>
 					</div>
-					<Button>$ roast_my_code</Button>
+					<Button disabled={isOverLimit}>$ roast_my_code</Button>
 				</div>
 
 				{/* Stats */}
