@@ -15,6 +15,8 @@ export interface CodeEditorProps {
 	placeholder?: string;
 	readOnly?: boolean;
 	className?: string;
+	language?: LanguageId | "auto";
+	onLanguageDetected?: (language: LanguageId | null) => void;
 }
 
 export function CodeEditor({
@@ -23,12 +25,16 @@ export function CodeEditor({
 	placeholder = "Paste your code here...",
 	readOnly = false,
 	className,
+	language: initialLanguage,
+	onLanguageDetected,
 }: CodeEditorProps) {
 	const id = useId();
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const highlightRef = useRef<HTMLDivElement>(null);
 
-	const [language, setLanguage] = useState<LanguageId | "auto">("auto");
+	const [language, setLanguage] = useState<LanguageId | "auto">(
+		initialLanguage ?? "auto",
+	);
 	const [detectedLanguage, setDetectedLanguage] = useState<LanguageId | null>(
 		null,
 	);
@@ -49,8 +55,9 @@ export function CodeEditor({
 		if (language === "auto" && value.length > 20) {
 			const detected = detectLanguage(value);
 			setDetectedLanguage(detected);
+			onLanguageDetected?.(detected);
 		}
-	}, [value, language]);
+	}, [value, language, onLanguageDetected]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		onChange?.(e.target.value);

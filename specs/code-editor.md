@@ -104,11 +104,11 @@ CodeEditor/
 
 ## 6. To-Dos
 
-- [ ] Integrar highlight.js para detecção automática
-- [ ] Criar componente LanguageSelector com top 20 linguagens
-- [ ] Implementar editor com camadas (textarea + highlight)
-- [ ] Sincronizar scroll entre camadas
-- [ ] Suportar colagem de código (paste)
-- [ ] Adicionar dropdown de seleção manual
-- [ ] Mostrar linguagem detectada/selecionada
+- [x] Integrar highlight.js para detecção automática
+- [x] Criar componente LanguageSelector com top 20 linguagens
+- [x] Implementar editor com camadas (textarea + highlight)
+- [x] Sincronizar scroll entre camadas
+- [x] Suportar colagem de código (paste)
+- [x] Adicionar dropdown de seleção manual
+- [x] Mostrar linguagem detectada/selecionada
 - [ ] Testar com múltiplas linguagens
