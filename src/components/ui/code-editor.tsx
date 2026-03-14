@@ -28,7 +28,7 @@ export function CodeEditor({
 	className,
 	language: initialLanguage,
 	onLanguageDetected,
-	maxLength = 10000,
+	maxLength = 2000,
 }: CodeEditorProps) {
 	const id = useId();
 	const textareaRef = useRef<HTMLTextAreaElement>(null);

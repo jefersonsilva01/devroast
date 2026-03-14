@@ -24,7 +24,7 @@ const MOCK_CODE = `function calculateTotal(items) {
 export default function HomePage() {
 	const [code, setCode] = useState(MOCK_CODE);
 	const [roastMode, setRoastMode] = useState(false);
-	const MAX_LENGTH = 10000;
+	const MAX_LENGTH = 2000;
 	const isOverLimit = code.length > MAX_LENGTH;
 
 	return (
