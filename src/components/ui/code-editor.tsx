@@ -1,6 +1,12 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+	detectLanguage,
+	highlightCode,
+	type LanguageId,
+	SUPPORTED_LANGUAGES,
+} from "@/lib/languages";
 import { cn } from "@/lib/utils";
 
 export interface CodeEditorProps {
@@ -19,25 +25,54 @@ export function CodeEditor({
 	className,
 }: CodeEditorProps) {
 	const id = useId();
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const highlightRef = useRef<HTMLDivElement>(null);
+
+	const [language, setLanguage] = useState<LanguageId | "auto">("auto");
+	const [detectedLanguage, setDetectedLanguage] = useState<LanguageId | null>(
+		null,
+	);
+
+	const effectiveLanguage = language === "auto" ? detectedLanguage : language;
+
+	const highlightedCode = useMemo(() => {
+		if (!effectiveLanguage || !value) return "";
+		return highlightCode(value, effectiveLanguage);
+	}, [value, effectiveLanguage]);
+
 	const lineNumbers = useMemo(() => {
 		const lines = value.split("\n").length;
 		return Array.from({ length: Math.max(lines, 10) }, (_, i) => i + 1);
 	}, [value]);
 
+	useEffect(() => {
+		if (language === "auto" && value.length > 20) {
+			const detected = detectLanguage(value);
+			setDetectedLanguage(detected);
+		}
+	}, [value, language]);
+
 	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		onChange?.(e.target.value);
+	};
+
+	const handleScroll = () => {
+		if (textareaRef.current && highlightRef.current) {
+			highlightRef.current.scrollTop = textareaRef.current.scrollTop;
+			highlightRef.current.scrollLeft = textareaRef.current.scrollLeft;
+		}
 	};
 
 	return (
 		<div
 			className={cn(
-				"flex h-[360px] w-full overflow-hidden rounded-md border border-border-primary bg-bg-input",
+				"relative flex h-[360px] w-full overflow-hidden rounded-md border border-border-primary bg-bg-input font-mono text-sm",
 				className,
 			)}
 		>
 			{/* Line numbers */}
 			<div
-				className="flex flex-col border-r border-border-primary bg-bg-surface py-4 pr-3 text-right text-xs text-text-tertiary font-mono"
+				className="flex flex-shrink-0 flex-col border-r border-border-primary bg-bg-surface py-4 pr-3 text-right text-xs text-text-tertiary"
 				aria-hidden="true"
 			>
 				{lineNumbers.map((num) => (
@@ -47,16 +82,56 @@ export function CodeEditor({
 				))}
 			</div>
 
-			{/* Code input */}
-			<textarea
-				id={id}
-				value={value}
-				onChange={handleChange}
-				readOnly={readOnly}
-				placeholder={placeholder}
-				className="flex-1 resize-none border-0 bg-transparent p-4 font-mono text-sm leading-6 text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-0"
-				spellCheck={false}
-			/>
+			{/* Editor container */}
+			<div className="relative flex-1 overflow-hidden">
+				{/* Highlighted code layer (behind) */}
+				<div
+					ref={highlightRef}
+					className="absolute inset-0 overflow-auto whitespace-pre-wrap break-words p-4 leading-6"
+					aria-hidden="true"
+				>
+					<code
+						className="text-text-primary"
+						dangerouslySetInnerHTML={{
+							__html: highlightedCode || "&nbsp;",
+						}}
+					/>
+				</div>
+
+				{/* Textarea layer (front) */}
+				<textarea
+					ref={textareaRef}
+					id={id}
+					value={value}
+					onChange={handleChange}
+					onScroll={handleScroll}
+					readOnly={readOnly}
+					placeholder={placeholder}
+					className="absolute inset-0 h-full w-full resize-none bg-transparent p-4 leading-6 text-transparent caret-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-0"
+					spellCheck={false}
+				/>
+			</div>
+
+			{/* Language selector */}
+			<div className="absolute bottom-2 right-2 flex items-center gap-2">
+				<select
+					value={language}
+					onChange={(e) => setLanguage(e.target.value as LanguageId | "auto")}
+					className="rounded border border-border-primary bg-bg-surface px-2 py-1 text-xs text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-green"
+				>
+					<option value="auto">auto</option>
+					{SUPPORTED_LANGUAGES.map((lang) => (
+						<option key={lang.id} value={lang.id}>
+							{lang.name}
+						</option>
+					))}
+				</select>
+				{effectiveLanguage && (
+					<span className="text-xs text-accent-green">
+						{SUPPORTED_LANGUAGES.find((l) => l.id === effectiveLanguage)?.name}
+					</span>
+				)}
+			</div>
 		</div>
 	);
 }

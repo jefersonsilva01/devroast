@@ -94,13 +94,21 @@ CodeEditor/
 
 ---
 
-## 5. Perguntas
+## 5. Decisões Confirmadas
 
-1. **Detecção automática é obrigatória ou pode ser opcional?**
-   - Sugestão: Opcional, com toggle para ativar/desativar
+- Detecção automática: **OBRIGATÓRIA**
+- Linguagens: **Top 20** (JS, TS, Python, Go, Rust, Java, C++, etc.)
+- Editor: **EDITÁVEL**
 
-2. **Quantas linguagens devem ser suportadas?**
-   - Sugestão: Top 20 (JS, TS, Python, Go, Rust, Java, C++, etc.)
+---
 
-3. **O editor precisa ser editável ou apenas visualização?**
-   - O CodeEditor atual já é editável, manter essa funcionalidade
+## 6. To-Dos
+
+- [ ] Integrar highlight.js para detecção automática
+- [ ] Criar componente LanguageSelector com top 20 linguagens
+- [ ] Implementar editor com camadas (textarea + highlight)
+- [ ] Sincronizar scroll entre camadas
+- [ ] Suportar colagem de código (paste)
+- [ ] Adicionar dropdown de seleção manual
+- [ ] Mostrar linguagem detectada/selecionada
+- [ ] Testar com múltiplas linguagens
