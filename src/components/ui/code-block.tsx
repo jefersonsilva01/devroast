@@ -53,7 +53,7 @@ export async function CodeBlock({
 	return (
 		<div
 			className={cn(
-				"overflow-auto rounded-md border border-border-primary bg-bg-input font-mono text-sm",
+				"block rounded-md border border-border-primary bg-bg-input font-mono text-sm",
 				className,
 			)}
 			dangerouslySetInnerHTML={{ __html: html }}

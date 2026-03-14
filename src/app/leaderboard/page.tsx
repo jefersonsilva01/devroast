@@ -57,9 +57,12 @@ const TOTAL_SUBMISSIONS = "2,847";
 const AVG_SCORE = "4.2";
 
 function LeaderboardEntryCard({ entry }: { entry: LeaderboardEntry }) {
+	const lineHeight = 24;
+	const minHeight = entry.lines * lineHeight + 48;
+
 	return (
-		<div className="flex flex-col overflow-hidden rounded-md border border-border-primary bg-bg-input">
-			<div className="flex h-12 items-center justify-between border-b border-border-primary px-5">
+		<div className="flex flex-col rounded-md border border-border-primary bg-bg-page overflow-visible">
+			<div className="flex h-12 shrink-0 items-center justify-between border-b border-border-primary px-5">
 				<div className="flex items-center gap-2">
 					<span className="font-mono text-sm text-text-tertiary">#</span>
 					<span className="font-mono text-sm font-bold text-accent-amber">
@@ -81,25 +84,28 @@ function LeaderboardEntryCard({ entry }: { entry: LeaderboardEntry }) {
 					</span>
 				</div>
 			</div>
-			<div className="relative">
-				<div className="absolute left-0 top-0 flex h-full flex-col gap-1.5 border-r border-border-primary bg-bg-surface px-3.5 py-4">
+			<div
+				className="relative overflow-visible"
+				style={{ minHeight: `${minHeight}px` }}
+			>
+				<div className="absolute left-0 top-0 flex h-full flex-col shrink-0 border-r border-border-primary bg-bg-surface px-3.5 py-4">
 					{[...Array(entry.lines)].map((_, i) => {
 						const lineNum = i + 1;
 						return (
 							<span
 								key={lineNum}
-								className="w-8 font-mono text-xs text-text-tertiary text-right"
+								className="w-10 font-mono text-xs leading-6 text-text-tertiary text-right"
 							>
 								{lineNum}
 							</span>
 						);
 					})}
 				</div>
-				<div className="pl-12 pr-4 py-4">
+				<div className="pl-24 pr-5 py-4 overflow-x-auto overflow-y-visible">
 					<CodeBlock
 						code={entry.code}
 						language={entry.language}
-						className="border-0 bg-transparent p-0"
+						className="border-0 bg-bg-input p-0 text-sm leading-6 whitespace-nowrap"
 					/>
 				</div>
 			</div>
