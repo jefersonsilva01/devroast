@@ -251,14 +251,14 @@ async function seed() {
 	for (const session of sessions) {
 		await client`
       INSERT INTO sessions (id, session_token, total_submissions, average_score, best_score, created_at, updated_at)
-      VALUES (${session.id}, ${session.session_token}, ${session.total_submissions}, ${session.average_score}, ${session.best_score}, ${session.created_at}, ${session.updated_at})
+      VALUES (${session.id}, ${session.session_token}, ${session.total_submissions}, ${session.average_score}, ${session.best_score}, ${session.created_at.toISOString()}, ${session.updated_at.toISOString()})
     `;
 	}
 
 	for (const sub of submissions) {
 		await client`
       INSERT INTO submissions (id, code, language, roast_mode, score, roast_message, issues, created_at, session_token)
-      VALUES (${sub.id}, ${sub.code}, ${sub.language}, ${sub.roast_mode}, ${sub.score}, ${sub.roast_message}, ${sub.issues}::jsonb, ${sub.created_at}, ${sub.session_token})
+      VALUES (${sub.id}, ${sub.code}, ${sub.language}, ${sub.roast_mode}, ${sub.score}, ${sub.roast_message}, ${sub.issues}::jsonb, ${sub.created_at.toISOString()}, ${sub.session_token})
     `;
 	}
 
