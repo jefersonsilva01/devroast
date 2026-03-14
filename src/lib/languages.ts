@@ -26,7 +26,7 @@ export const SUPPORTED_LANGUAGES = [
 export type LanguageId = (typeof SUPPORTED_LANGUAGES)[number]["id"];
 
 export function detectLanguage(code: string): LanguageId | null {
-	if (!code || code.trim().length < 10) {
+	if (!code || code.trim().length < 15) {
 		return null;
 	}
 
@@ -35,7 +35,7 @@ export function detectLanguage(code: string): LanguageId | null {
 		SUPPORTED_LANGUAGES.map((l) => l.hljs),
 	);
 
-	if (result.language && result.relevance >= 5) {
+	if (result.language && result.relevance >= 1) {
 		const found = SUPPORTED_LANGUAGES.find(
 			(l) => l.hljs === result.language || l.id === result.language,
 		);
