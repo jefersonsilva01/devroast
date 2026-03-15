@@ -30,6 +30,15 @@ export async function getSubmissionById(id: string) {
 	return result[0] || null;
 }
 
+export async function getSubmission(id: string) {
+	const result = await db
+		.select()
+		.from(submissions)
+		.where(eq(submissions.id, id))
+		.limit(1);
+	return result[0] || null;
+}
+
 export async function getSessionByToken(token: string) {
 	const result = await db
 		.select()
