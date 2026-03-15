@@ -41,7 +41,7 @@ export async function analyzeCode(
 	const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
 	const result = await model.generateContent([
-		systemInstruction + "\n\n" + userPrompt,
+		`${systemInstruction}\n\n${userPrompt}`,
 	]);
 
 	const responseText = result.response.text();

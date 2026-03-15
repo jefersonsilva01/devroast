@@ -5,7 +5,7 @@ import postgres from "postgres";
 
 const connectionString = process.env.DATABASE_URL!;
 const client = postgres(connectionString);
-const db = drizzle(client);
+const _db = drizzle(client);
 
 const LANGUAGES = [
 	"javascript",
