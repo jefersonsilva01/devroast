@@ -31,22 +31,22 @@ export function ShareButton({
 			await wasm.default();
 			const renderer = new wasm.Renderer();
 
-			// Load JetBrains Mono font for monospace text
-			const fontData = await fetch(
+			// Load JetBrains Mono font
+			const monoFontData = await fetch(
 				"https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2",
 			).then((r) => r.arrayBuffer());
-			renderer.loadFont({
+			(renderer as unknown as { loadFont: (f: unknown) => void }).loadFont({
 				name: "JetBrains Mono",
-				data: fontData,
+				data: monoFontData,
 				weight: 400,
 				style: "normal",
 			});
 
-			// Load Inter font for regular text
+			// Load Inter font
 			const interFontData = await fetch(
 				"https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2",
 			).then((r) => r.arrayBuffer());
-			renderer.loadFont({
+			(renderer as unknown as { loadFont: (f: unknown) => void }).loadFont({
 				name: "Inter",
 				data: interFontData,
 				weight: 400,
