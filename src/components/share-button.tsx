@@ -31,7 +31,7 @@ export function ShareButton({
 			await init();
 			const renderer = new (await import("@takumi-rs/wasm")).Renderer();
 
-			const node = await fromJsx(
+			const { node, stylesheets } = await fromJsx(
 				<div
 					style={{
 						width: "100%",
@@ -145,10 +145,11 @@ export function ShareButton({
 				</div>,
 			);
 
-			const dataUrl = renderer.renderAsDataUrl(node as never, {
+			const dataUrl = renderer.renderAsDataUrl(node, {
 				width: 1200,
 				height: 630,
 				format: "png",
+				stylesheets,
 			});
 
 			window.open(dataUrl, "_blank");
