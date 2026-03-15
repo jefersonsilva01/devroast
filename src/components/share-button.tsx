@@ -31,9 +31,9 @@ export function ShareButton({
 			await wasm.default();
 			const renderer = new wasm.Renderer();
 
-			// Load JetBrains Mono font (TTF format - WASM doesn't support WOFF2)
+			// Load JetBrains Mono font (from jsDelivr CDN)
 			const monoFontData = await fetch(
-				"https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Regular.ttf",
+				"https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.19/files/jetbrains-mono-latin-400-normal.woff2",
 			).then((r) => r.arrayBuffer());
 			(renderer as unknown as { loadFont: (f: unknown) => void }).loadFont({
 				name: "JetBrains Mono",
@@ -42,9 +42,9 @@ export function ShareButton({
 				style: "normal",
 			});
 
-			// Load Inter font (TTF format)
+			// Load Inter font (from jsDelivr CDN)
 			const interFontData = await fetch(
-				"https://github.com/rsms/inter/raw/master/docs/font-files/Inter-Regular.otf",
+				"https://cdn.jsdelivr.net/npm/@fontsource/inter@5.1.0/files/inter-latin-400-normal.woff2",
 			).then((r) => r.arrayBuffer());
 			(renderer as unknown as { loadFont: (f: unknown) => void }).loadFont({
 				name: "Inter",
