@@ -27,36 +27,6 @@ const HONEST_SYSTEM_PROMPT = `You are a helpful code reviewer. Analyze the provi
 
 const SARCASTIC_SYSTEM_PROMPT = `You are a brutal but witty code reviewer. Roast the provided code with sarcasm and humor while still providing accurate technical feedback. Be mean but fair. Rate the code from 0-10 based on quality, best practices, and potential bugs. Return JSON only.`;
 
-const RESPONSE_SCHEMA = {
-	type: "object",
-	properties: {
-		score: { type: "number" },
-		verdict: { type: "string" },
-		roastTitle: { type: "string" },
-		issues: {
-			type: "array",
-			items: {
-				type: "object",
-				properties: {
-					severity: { type: "string", enum: ["critical", "warning", "good"] },
-					title: { type: "string" },
-					description: { type: "string" },
-				},
-				required: ["severity", "title", "description"],
-			},
-		},
-		suggestedFix: {
-			type: "object",
-			properties: {
-				removed: { type: "array", items: { type: "string" } },
-				added: { type: "array", items: { type: "string" } },
-			},
-			required: ["removed", "added"],
-		},
-	},
-	required: ["score", "verdict", "roastTitle", "issues", "suggestedFix"],
-};
-
 export async function analyzeCode(
 	code: string,
 	language: string,
@@ -74,7 +44,6 @@ export async function analyzeCode(
 		config: {
 			systemInstruction,
 			responseMimeType: "application/json",
-			responseSchema: RESPONSE_SCHEMA,
 		},
 	});
 
