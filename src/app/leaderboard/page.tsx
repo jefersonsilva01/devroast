@@ -1,60 +1,17 @@
+import { Suspense } from "react";
+import { GlobalMetrics } from "@/components/global-metrics";
+import { LeaderboardPageSkeleton } from "@/components/leaderboard-page-skeleton";
 import { CodeBlock } from "@/components/ui/code-block";
+import { createCaller } from "@/server/routers/_app";
 
 interface LeaderboardEntry {
 	rank: number;
+	id: string;
 	score: number;
 	code: string;
 	language: string;
 	lines: number;
 }
-
-const MOCK_ENTRIES: LeaderboardEntry[] = [
-	{
-		rank: 1,
-		score: 1.2,
-		code: `eval(prompt("enter code"))
-document.write(response)
-// trust the user lol`,
-		language: "javascript",
-		lines: 3,
-	},
-	{
-		rank: 2,
-		score: 2.1,
-		code: `if True:
-    return False
-# just vibes`,
-		language: "python",
-		lines: 3,
-	},
-	{
-		rank: 3,
-		score: 3.5,
-		code: `const x = 1
-x = 2 // who needs const?`,
-		language: "typescript",
-		lines: 2,
-	},
-	{
-		rank: 4,
-		score: 4.8,
-		code: `while(true) { eat(); } // infinite pizza`,
-		language: "javascript",
-		lines: 1,
-	},
-	{
-		rank: 5,
-		score: 5.2,
-		code: `function doNothing() {
-  // TODO: implement
-}`,
-		language: "javascript",
-		lines: 3,
-	},
-];
-
-const TOTAL_SUBMISSIONS = "2,847";
-const AVG_SCORE = "4.2";
 
 function LeaderboardEntryCard({ entry }: { entry: LeaderboardEntry }) {
 	const lineHeight = 24;
@@ -132,25 +89,54 @@ export default function LeaderboardPage() {
 						</h1>
 					</div>
 					<p className="font-mono text-sm text-text-secondary">
-						{/* the most roasted code on the internet */}
+						the worst code on the internet, ranked by shame
 					</p>
-					<div className="flex items-center gap-2">
-						<span className="font-mono text-xs text-text-tertiary">
-							{TOTAL_SUBMISSIONS} submissions
-						</span>
-						<span className="font-mono text-xs text-text-tertiary">·</span>
-						<span className="font-mono text-xs text-text-tertiary">
-							avg score: {AVG_SCORE}/10
-						</span>
-					</div>
+					<Suspense fallback={<LeaderboardPageStatsSkeleton />}>
+						<LeaderboardStats />
+					</Suspense>
 				</section>
 
-				<section className="flex flex-col gap-5">
-					{MOCK_ENTRIES.map((entry) => (
-						<LeaderboardEntryCard key={entry.rank} entry={entry} />
-					))}
-				</section>
+				<Suspense fallback={<LeaderboardPageSkeleton />}>
+					<LeaderboardList />
+				</Suspense>
 			</div>
 		</main>
+	);
+}
+
+function LeaderboardPageStatsSkeleton() {
+	return (
+		<div className="flex items-center gap-2">
+			<span className="h-4 w-16 animate-pulse rounded bg-text-tertiary/20" />
+			<span className="font-mono text-xs text-text-tertiary">submissions</span>
+			<span className="font-mono text-xs text-text-tertiary">·</span>
+			<span className="h-4 w-12 animate-pulse rounded bg-text-tertiary/20" />
+			<span className="font-mono text-xs text-text-tertiary">avg score</span>
+		</div>
+	);
+}
+
+async function LeaderboardStats() {
+	const caller = createCaller({});
+	const { totalSubmissions, averageScore } = await caller.getGlobalMetrics();
+
+	return (
+		<GlobalMetrics
+			totalSubmissions={totalSubmissions}
+			averageScore={averageScore}
+		/>
+	);
+}
+
+async function LeaderboardList() {
+	const caller = createCaller({});
+	const entries = await caller.getLeaderboard({ limit: 20, offset: 0 });
+
+	return (
+		<section className="flex flex-col gap-5">
+			{entries.map((entry) => (
+				<LeaderboardEntryCard key={entry.id} entry={entry} />
+			))}
+		</section>
 	);
 }

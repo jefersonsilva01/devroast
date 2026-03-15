@@ -25,6 +25,24 @@ export const appRouter = t.router({
 				lines: e.code.split("\n").length,
 			}));
 		}),
+	getLeaderboard: t.procedure
+		.input(
+			z.object({
+				limit: z.number().min(1).max(20).default(20),
+				offset: z.number().min(0).default(0),
+			}),
+		)
+		.query(async ({ input }) => {
+			const entries = await getLeaderboard(input.limit, input.offset);
+			return entries.map((e, i) => ({
+				rank: input.offset + i + 1,
+				id: String(e.id),
+				score: Number(e.score),
+				code: e.code,
+				language: e.language,
+				lines: e.code.split("\n").length,
+			}));
+		}),
 });
 
 export type AppRouter = typeof appRouter;
