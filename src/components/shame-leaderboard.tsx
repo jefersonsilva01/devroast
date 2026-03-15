@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CodeBlock } from "@/components/ui/code-block";
@@ -83,10 +84,12 @@ export function ShameLeaderboardWithSuspense({
 }
 
 async function ShameLeaderboardData({
-	totalSubmissions,
+	totalSubmissions: _totalSubmissions,
 }: {
 	totalSubmissions: number;
 }) {
+	"use cache";
+	cacheLife({ revalidate: 3600 });
 	const caller = createCaller({});
 	const entries = await caller.getShameLeaderboard({ limit: 3 });
 

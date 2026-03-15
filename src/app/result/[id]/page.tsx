@@ -201,7 +201,6 @@ export async function generateMetadata({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	await params;
 	return {
 		title: "Roast Result | devroast",
 		description: `Check out your roast result - Score: ${MOCK_RESULT.score}/10`,
@@ -213,7 +212,7 @@ export default async function ResultPage({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	await params;
+	"use cache";
 
 	return (
 		<main className="flex min-h-screen flex-col bg-bg-page px-5 py-10 md:px-20">

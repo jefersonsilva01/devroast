@@ -7,11 +7,11 @@ export interface CodeBlockProps {
 	className?: string;
 }
 
-let highlighter: Highlighter | null = null;
+let highlighterPromise: Promise<Highlighter> | null = null;
 
-async function getHighlighterInstance() {
-	if (!highlighter) {
-		highlighter = await createHighlighter({
+async function getHighlighterInstance(): Promise<Highlighter> {
+	if (!highlighterPromise) {
+		highlighterPromise = createHighlighter({
 			themes: ["vesper"],
 			langs: [
 				"javascript",
@@ -36,7 +36,7 @@ async function getHighlighterInstance() {
 			],
 		});
 	}
-	return highlighter;
+	return highlighterPromise;
 }
 
 export async function CodeBlock({

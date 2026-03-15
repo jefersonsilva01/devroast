@@ -1,7 +1,7 @@
 export function LeaderboardPageSkeleton() {
 	return (
 		<div className="flex flex-col gap-5">
-			{[1, 2, 3, 4, 5].map((i) => (
+			{[...Array(20)].map((_, i) => (
 				<div
 					key={`skeleton-${i}`}
 					className="flex flex-col rounded-md border border-border-primary bg-bg-page"
