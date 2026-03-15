@@ -1,6 +1,6 @@
 import { initTRPC } from "@trpc/server";
-import { getGlobalStats } from "@/db/queries";
-import { createContext } from "../context";
+import { z } from "zod";
+import { getGlobalStats, getLeaderboard } from "@/db/queries";
 
 const t = initTRPC.create();
 
@@ -12,6 +12,19 @@ export const appRouter = t.router({
 			averageScore: stats.averageScore,
 		};
 	}),
+	getShameLeaderboard: t.procedure
+		.input(z.object({ limit: z.number().default(3) }))
+		.query(async ({ input }) => {
+			const entries = await getLeaderboard(input.limit, 0);
+			return entries.map((e, i) => ({
+				rank: i + 1,
+				id: String(e.id),
+				score: Number(e.score),
+				code: e.code,
+				language: e.language,
+				lines: e.code.split("\n").length,
+			}));
+		}),
 });
 
 export type AppRouter = typeof appRouter;
