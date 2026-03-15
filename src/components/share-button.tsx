@@ -25,11 +25,11 @@ export function ShareButton({
 		setError(null);
 
 		try {
-			const init = (await import("@takumi-rs/wasm")).default;
+			const wasm = await import("@takumi-rs/wasm");
 			const { fromJsx } = await import("@takumi-rs/helpers/jsx");
 
-			await init();
-			const renderer = new (await import("@takumi-rs/wasm")).Renderer();
+			await wasm.default();
+			const renderer = new wasm.Renderer();
 
 			const { node, stylesheets } = await fromJsx(
 				<div
@@ -152,7 +152,21 @@ export function ShareButton({
 				stylesheets,
 			});
 
-			window.open(dataUrl, "_blank");
+			// Convert data URL to blob for download
+			const response = await fetch(dataUrl);
+			const blob = await response.blob();
+			const blobUrl = URL.createObjectURL(blob);
+
+			// Create temporary link for download
+			const link = document.createElement("a");
+			link.href = blobUrl;
+			link.download = `devroast-${score.toFixed(1)}.png`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+
+			// Clean up
+			URL.revokeObjectURL(blobUrl);
 		} catch (err) {
 			console.error("Failed to generate image:", err);
 			setError("Failed to generate image. Please try again.");
@@ -169,7 +183,7 @@ export function ShareButton({
 				disabled={loading}
 				className="inline-flex w-fit items-center gap-1.5 rounded-md border border-border-primary px-4 py-2 font-mono text-xs text-text-primary hover:bg-bg-surface disabled:opacity-50"
 			>
-				{loading ? "generating..." : "share_roast"}
+				{loading ? "generating..." : "download_og_image"}
 			</button>
 			{error && (
 				<span className="font-mono text-xs text-accent-red">{error}</span>
