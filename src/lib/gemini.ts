@@ -69,7 +69,7 @@ export async function analyzeCode(
 	const userPrompt = `Analyze this ${language} code:\n\n\`\`\`${language}\n${code}\n\`\`\`\n\nReturn JSON with: score (0-10), verdict (short phrase), roastTitle (catchy title), issues (array with severity, title, description), suggestedFix (removed and added lines).`;
 
 	const response = await ai.models.generateContent({
-		model: "gemini-2.0-flash",
+		model: "gemini-1.5-flash",
 		contents: userPrompt,
 		config: {
 			systemInstruction,
