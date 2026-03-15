@@ -32,7 +32,7 @@ export function CodeEditorSection() {
 
 	const createRoast = trpc.createRoast.useMutation({
 		onSuccess: (data) => {
-			router.push(`/results/${data.id}`);
+			router.push(`/result/${data.id}`);
 		},
 		onError: (error) => {
 			alert(`Error: ${error.message}`);

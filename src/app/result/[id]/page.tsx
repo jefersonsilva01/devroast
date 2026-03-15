@@ -26,10 +26,18 @@ function IssueCard({
 	title: string;
 	description: string;
 }) {
-	const severityConfig = {
+	const severityConfig: Record<
+		string,
+		{ dot: string; label: string; labelColor: string }
+	> = {
 		critical: {
 			dot: "bg-accent-red",
 			label: "critical",
+			labelColor: "text-accent-red",
+		},
+		error: {
+			dot: "bg-accent-red",
+			label: "error",
 			labelColor: "text-accent-red",
 		},
 		warning: {
@@ -42,9 +50,14 @@ function IssueCard({
 			label: "good",
 			labelColor: "text-accent-green",
 		},
+		info: {
+			dot: "bg-accent-green",
+			label: "info",
+			labelColor: "text-accent-green",
+		},
 	};
 
-	const config = severityConfig[severity];
+	const config = severityConfig[severity] ?? severityConfig.warning;
 
 	return (
 		<div className="flex flex-col gap-3 rounded-md border border-border-primary p-5">

@@ -1,12 +1,12 @@
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const OPENAI_API_KEY = process.env.GPT_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-if (!OPENAI_API_KEY) {
-	throw new Error("GPT_API_KEY is not set");
+if (!GEMINI_API_KEY) {
+	throw new Error("GEMINI_API_KEY is not set");
 }
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export interface RoastAnalysis {
 	score: number;
@@ -38,22 +38,21 @@ export async function analyzeCode(
 
 	const userPrompt = `Analyze this ${language} code:\n\n\`\`\`${language}\n${code}\n\`\`\`\n\nReturn JSON with: score (0-10), verdict (short phrase), roastTitle (catchy title), issues (array with severity, title, description), suggestedFix (removed and added lines).`;
 
-	const response = await openai.chat.completions.create({
-		model: "gpt-4o-mini",
-		messages: [
-			{ role: "system", content: systemInstruction },
-			{ role: "user", content: userPrompt },
-		],
-		response_format: { type: "json_object" },
-	});
+	const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
-	const responseText = response.choices[0]?.message?.content;
+	const result = await model.generateContent([
+		systemInstruction + "\n\n" + userPrompt,
+	]);
+
+	const responseText = result.response.text();
 
 	if (!responseText) {
-		throw new Error("No response from OpenAI");
+		throw new Error("No response from Gemini");
 	}
 
-	const parsed = JSON.parse(responseText);
+	const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```|([\s\S]*)/);
+	const jsonString = jsonMatch?.[1] ?? jsonMatch?.[2] ?? responseText;
+	const parsed = JSON.parse(jsonString);
 
 	return {
 		score: parsed.score,
