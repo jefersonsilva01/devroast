@@ -29,9 +29,29 @@ export function ShareButton({
 			const { fromJsx } = await import("@takumi-rs/helpers/jsx");
 
 			await wasm.default();
-			const renderer = new wasm.Renderer({
-				loadDefaultFonts: true,
-			} as never);
+			const renderer = new wasm.Renderer();
+
+			// Load JetBrains Mono font for monospace text
+			const fontData = await fetch(
+				"https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2",
+			).then((r) => r.arrayBuffer());
+			renderer.loadFont({
+				name: "JetBrains Mono",
+				data: fontData,
+				weight: 400,
+				style: "normal",
+			});
+
+			// Load Inter font for regular text
+			const interFontData = await fetch(
+				"https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2",
+			).then((r) => r.arrayBuffer());
+			renderer.loadFont({
+				name: "Inter",
+				data: interFontData,
+				weight: 400,
+				style: "normal",
+			});
 
 			const { node, stylesheets } = await fromJsx(
 				<div
@@ -61,7 +81,7 @@ export function ShareButton({
 									color: "#22c55e",
 									fontSize: 24,
 									fontWeight: 700,
-									fontFamily: "monospace",
+									fontFamily: "JetBrains Mono",
 								}}
 							>
 								&gt;
@@ -71,7 +91,7 @@ export function ShareButton({
 									color: "#f4f4f5",
 									fontSize: 20,
 									fontWeight: 500,
-									fontFamily: "monospace",
+									fontFamily: "JetBrains Mono",
 								}}
 							>
 								devroast
@@ -85,7 +105,7 @@ export function ShareButton({
 									fontSize: 160,
 									fontWeight: 900,
 									lineHeight: 1,
-									fontFamily: "monospace",
+									fontFamily: "JetBrains Mono",
 								}}
 							>
 								{score.toFixed(1)}
@@ -95,7 +115,7 @@ export function ShareButton({
 									color: "#71717a",
 									fontSize: 56,
 									lineHeight: 1,
-									fontFamily: "monospace",
+									fontFamily: "JetBrains Mono",
 								}}
 							>
 								/10
@@ -115,7 +135,7 @@ export function ShareButton({
 								style={{
 									color: "#ef4444",
 									fontSize: 20,
-									fontFamily: "monospace",
+									fontFamily: "JetBrains Mono",
 								}}
 							>
 								{verdict}
@@ -126,7 +146,7 @@ export function ShareButton({
 							style={{
 								color: "#71717a",
 								fontSize: 16,
-								fontFamily: "monospace",
+								fontFamily: "JetBrains Mono",
 							}}
 						>
 							lang: {language} · {lines} lines
@@ -138,7 +158,7 @@ export function ShareButton({
 								fontSize: 22,
 								lineHeight: 1.5,
 								textAlign: "center",
-								fontFamily: "sans-serif",
+								fontFamily: "Inter",
 							}}
 						>
 							"{roastTitle}"
