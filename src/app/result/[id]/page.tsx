@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { CodeBlock } from "@/components/ui/code-block";
 import { ScoreRing } from "@/components/ui/score-ring";
 import type { RoastAnalysis } from "@/lib/gemini";
@@ -195,9 +194,6 @@ export default async function ResultPage({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	"use cache";
-	cacheLife({ revalidate: 3600 });
-
 	const { id } = await params;
 	const caller = createCaller({});
 

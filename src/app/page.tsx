@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { CodeEditorSection } from "@/components/code-editor-section";
 import { GlobalMetricsWithSuspense } from "@/components/global-metrics-with-suspense";
@@ -8,6 +7,8 @@ import {
 	ShameLeaderboardWithSuspense,
 } from "@/components/shame-leaderboard";
 import { ShameLeaderboardSkeleton } from "@/components/shame-leaderboard-skeleton";
+
+export const dynamic = "force-dynamic";
 
 export default function HomePage() {
 	return (
@@ -64,8 +65,6 @@ export default function HomePage() {
 }
 
 async function HomePageWithData() {
-	"use cache";
-	cacheLife({ revalidate: 3600 });
 	const caller = (await import("@/server/routers/_app")).createCaller({});
 	const { totalSubmissions } = await caller.getGlobalMetrics();
 

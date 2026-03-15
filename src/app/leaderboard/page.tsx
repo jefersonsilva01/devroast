@@ -1,9 +1,10 @@
-import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { GlobalMetrics } from "@/components/global-metrics";
 import { LeaderboardPageSkeleton } from "@/components/leaderboard-page-skeleton";
 import { CodeBlock } from "@/components/ui/code-block";
 import { createCaller } from "@/server/routers/_app";
+
+export const dynamic = "force-dynamic";
 
 interface LeaderboardEntry {
 	rank: number;
@@ -118,8 +119,6 @@ function LeaderboardPageStatsSkeleton() {
 }
 
 async function LeaderboardStats() {
-	"use cache";
-	cacheLife({ revalidate: 3600 });
 	const caller = createCaller({});
 	const { totalSubmissions, averageScore } = await caller.getGlobalMetrics();
 
@@ -132,8 +131,6 @@ async function LeaderboardStats() {
 }
 
 async function LeaderboardList() {
-	"use cache";
-	cacheLife({ revalidate: 3600 });
 	const caller = createCaller({});
 	const entries = await caller.getLeaderboard({ limit: 20, offset: 0 });
 

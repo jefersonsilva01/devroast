@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { CodeBlock } from "@/components/ui/code-block";
 import { createCaller } from "@/server/routers/_app";
@@ -79,8 +78,6 @@ export function LeaderboardWithSuspense() {
 }
 
 async function LeaderboardData() {
-	"use cache";
-	cacheLife({ revalidate: 3600 });
 	const caller = createCaller({});
 	const entries = await caller.getLeaderboard({ limit: 20, offset: 0 });
 

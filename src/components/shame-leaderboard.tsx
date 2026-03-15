@@ -88,8 +88,6 @@ async function ShameLeaderboardData({
 }: {
 	totalSubmissions: number;
 }) {
-	"use cache";
-	cacheLife({ revalidate: 3600 });
 	const caller = createCaller({});
 	const entries = await caller.getShameLeaderboard({ limit: 3 });
 

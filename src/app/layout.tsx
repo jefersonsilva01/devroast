@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/navbar";
+import { TRPCProviderWrapper } from "@/lib/trpc/client-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default function RootLayout({
 		<html lang="en">
 			<body className="antialiased">
 				<Navbar />
-				{children}
+				<TRPCProviderWrapper>{children}</TRPCProviderWrapper>
 			</body>
 		</html>
 	);
