@@ -1,3 +1,4 @@
+import { ShareButton } from "@/components/share-button";
 import { CodeBlock } from "@/components/ui/code-block";
 import { ScoreRing } from "@/components/ui/score-ring";
 import type { RoastAnalysis } from "@/lib/gemini";
@@ -261,12 +262,13 @@ export default async function ResultPage({
 								{result.lines} lines
 							</span>
 						</div>
-						<button
-							type="button"
-							className="inline-flex w-fit items-center gap-1.5 rounded-md border border-border-primary px-4 py-2 font-mono text-xs text-text-primary hover:bg-bg-surface"
-						>
-							share_roast
-						</button>
+						<ShareButton
+							score={result.score}
+							verdict={result.verdict}
+							roastTitle={result.roastTitle}
+							language={result.language}
+							lines={result.lines}
+						/>
 					</div>
 				</section>
 
