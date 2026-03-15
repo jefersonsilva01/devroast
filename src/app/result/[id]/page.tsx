@@ -1,56 +1,21 @@
 import { CodeBlock } from "@/components/ui/code-block";
 import { ScoreRing } from "@/components/ui/score-ring";
+import type { RoastAnalysis } from "@/lib/gemini";
 import { cn } from "@/lib/utils";
+import { createCaller } from "@/server/routers/_app";
 
-const MOCK_RESULT = {
-	score: 3.5,
-	verdict: "needs_serious_help",
-	roastTitle:
-		'"this code looks like it was written during a power outage... in 2005."',
-	language: "javascript",
-	lines: 7,
-	code: `var total = 0;
-for (var i = 0; i < items.length; i++) {
-    total = total + items[i].price;
+interface SubmissionResult {
+	id: string;
+	code: string;
+	language: string;
+	roastMode: boolean;
+	score: number;
+	roastMessage: string;
+	verdict: string;
+	issues: RoastAnalysis["issues"];
+	suggestedFix: RoastAnalysis["suggestedFix"];
+	createdAt: Date;
 }
-return total;`,
-	issues: [
-		{
-			severity: "critical",
-			title: "using var instead of const/let",
-			description:
-				"var is function-scoped and leads to hoisting bugs. use const by default, let when reassignment is needed.",
-		},
-		{
-			severity: "warning",
-			title: "imperative loop pattern",
-			description:
-				"for loops are verbose and error-prone. use .reduce() or .map() for cleaner, functional transformations.",
-		},
-		{
-			severity: "good",
-			title: "clear naming conventions",
-			description:
-				"calculateTotal and items are descriptive, self-documenting names that communicate intent without comments.",
-		},
-		{
-			severity: "good",
-			title: "single responsibility",
-			description:
-				"the function does one thing well — calculates a total. no side effects, no mixed concerns, no hidden complexity.",
-		},
-	],
-	suggestedFix: {
-		removed: [
-			"  var total = 0;",
-			"  for (var i = 0; i < items.length; i++) {",
-			"    total = total + items[i].price;",
-			"  }",
-			"  return total;",
-		],
-		added: ["  return items.reduce((sum, item) => sum + item.price, 0);"],
-	},
-};
 
 function IssueCard({
 	severity,
@@ -148,7 +113,13 @@ function CodePreview({
 	);
 }
 
-function DiffPreview({ result }: { result: typeof MOCK_RESULT }) {
+function DiffPreview({
+	result,
+}: {
+	result: {
+		suggestedFix: { removed: string[]; added: string[] };
+	};
+}) {
 	type DiffLine = {
 		id: string;
 		type: "context" | "removed" | "added";
@@ -201,11 +172,21 @@ export async function generateMetadata({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	await params;
-	return {
-		title: "Roast Result | devroast",
-		description: `Check out your roast result - Score: ${MOCK_RESULT.score}/10`,
-	};
+	const { id } = await params;
+	const caller = createCaller({});
+
+	try {
+		const result = await caller.getSubmission({ id });
+		return {
+			title: `Roast Result | devroast`,
+			description: `Score: ${result.score}/10`,
+		};
+	} catch {
+		return {
+			title: "Roast Result | devroast",
+			description: "Submission not found",
+		};
+	}
 }
 
 export default async function ResultPage({
@@ -213,29 +194,58 @@ export default async function ResultPage({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	await params;
+	const { id } = await params;
+	const caller = createCaller({});
+
+	let submission: SubmissionResult;
+	try {
+		const result = await caller.getSubmission({ id });
+		submission = {
+			...result,
+			createdAt: result.createdAt,
+		};
+	} catch {
+		return (
+			<main className="flex min-h-screen flex-col items-center justify-center bg-bg-page px-5">
+				<p className="font-mono text-lg text-text-primary">
+					Submission not found
+				</p>
+			</main>
+		);
+	}
+
+	const result = {
+		score: submission.score,
+		verdict: submission.verdict.toLowerCase().replace(/\s+/g, "_"),
+		roastTitle: submission.roastMessage,
+		language: submission.language,
+		lines: submission.code.split("\n").length,
+		code: submission.code,
+		issues: submission.issues,
+		suggestedFix: submission.suggestedFix,
+	};
 
 	return (
 		<main className="flex min-h-screen flex-col bg-bg-page px-5 py-10 md:px-20">
 			<div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
 				<section className="flex items-center gap-12">
-					<ScoreRing score={MOCK_RESULT.score} />
+					<ScoreRing score={result.score} />
 					<div className="flex flex-col gap-4">
 						<div className="flex items-center gap-2">
 							<div className="h-2 w-2 rounded-full bg-accent-red" />
 							<span className="font-mono text-sm font-medium text-accent-red">
-								verdict: {MOCK_RESULT.verdict}
+								verdict: {result.verdict}
 							</span>
 						</div>
 						<h1 className="font-mono text-xl leading-relaxed text-text-primary">
-							{MOCK_RESULT.roastTitle}
+							{result.roastTitle}
 						</h1>
 						<div className="flex items-center gap-4">
 							<span className="font-mono text-xs text-text-tertiary">
-								lang: {MOCK_RESULT.language}
+								lang: {result.language}
 							</span>
 							<span className="font-mono text-xs text-text-tertiary">
-								{MOCK_RESULT.lines} lines
+								{result.lines} lines
 							</span>
 						</div>
 						<button
@@ -259,9 +269,9 @@ export default async function ResultPage({
 						</h2>
 					</div>
 					<CodePreview
-						code={MOCK_RESULT.code}
-						language={MOCK_RESULT.language}
-						lines={MOCK_RESULT.lines}
+						code={result.code}
+						language={result.language}
+						lines={result.lines}
 					/>
 				</section>
 
@@ -277,7 +287,7 @@ export default async function ResultPage({
 						</h2>
 					</div>
 					<div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-						{MOCK_RESULT.issues.map((issue) => (
+						{result.issues?.map((issue) => (
 							<IssueCard
 								key={issue.title}
 								severity={issue.severity as "critical" | "warning" | "good"}
@@ -299,7 +309,7 @@ export default async function ResultPage({
 							suggested_fix
 						</h2>
 					</div>
-					<DiffPreview result={MOCK_RESULT} />
+					<DiffPreview result={result} />
 				</section>
 			</div>
 		</main>

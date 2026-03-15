@@ -1,10 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/ui/code-editor";
+import { LanguageSelector } from "@/components/ui/language-selector";
 import { Toggle } from "@/components/ui/toggle";
 import { WindowHeader } from "@/components/window-header";
+import type { LanguageId } from "@/lib/languages";
+import { trpc } from "@/lib/trpc/client";
 
 const MOCK_CODE = `function calculateTotal(items) {
   let total = 0;
@@ -19,10 +23,21 @@ const MOCK_CODE = `function calculateTotal(items) {
 }`;
 
 export function CodeEditorSection() {
+	const router = useRouter();
 	const [code, setCode] = useState(MOCK_CODE);
+	const [language, setLanguage] = useState<LanguageId | "auto">("javascript");
 	const [roastMode, setRoastMode] = useState(false);
 	const MAX_LENGTH = 2000;
 	const isOverLimit = code.length > MAX_LENGTH;
+
+	const createRoast = trpc.createRoast.useMutation({
+		onSuccess: (data) => {
+			router.push(`/results/${data.id}`);
+		},
+		onError: (error) => {
+			alert(`Error: ${error.message}`);
+		},
+	});
 
 	return (
 		<>
@@ -35,6 +50,11 @@ export function CodeEditorSection() {
 					placeholder="Paste your code here..."
 					maxLength={MAX_LENGTH}
 				/>
+			</div>
+
+			{/* Language Selector */}
+			<div className="flex items-center gap-2 py-2">
+				<LanguageSelector value={language} onChange={setLanguage} />
 			</div>
 
 			{/* Actions Bar */}
@@ -51,7 +71,12 @@ export function CodeEditorSection() {
 						{"//"} maximum sarcasm enabled
 					</span>
 				</div>
-				<Button disabled={isOverLimit}>$ roast_my_code</Button>
+				<Button
+					onClick={() => createRoast.mutate({ code, language, roastMode })}
+					disabled={isOverLimit || createRoast.isPending}
+				>
+					{createRoast.isPending ? "roasting..." : "$ roast_my_code"}
+				</Button>
 			</div>
 		</>
 	);

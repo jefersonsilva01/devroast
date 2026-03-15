@@ -1,10 +1,9 @@
+import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { Suspense } from "react";
-import { GlobalMetrics } from "@/components/global-metrics";
-import { LeaderboardPageSkeleton } from "@/components/leaderboard-page-skeleton";
 import { CodeBlock } from "@/components/ui/code-block";
 import { createCaller } from "@/server/routers/_app";
-
-export const dynamic = "force-dynamic";
+import { ShameLeaderboardSkeleton } from "./shame-leaderboard-skeleton";
 
 interface LeaderboardEntry {
 	rank: number;
@@ -72,67 +71,25 @@ function LeaderboardEntryCard({ entry }: { entry: LeaderboardEntry }) {
 	);
 }
 
-export const metadata = {
-	title: "Leaderboard | devroast",
-	description: "The most roasted code on the internet",
-};
-
-export default function LeaderboardPage() {
+export function ShameLeaderboardWithSuspense({
+	totalSubmissions,
+}: {
+	totalSubmissions: number;
+}) {
 	return (
-		<main className="flex min-h-screen flex-col bg-bg-page px-5 py-10 md:px-20">
-			<div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
-				<section className="flex flex-col gap-4">
-					<div className="flex items-center gap-3">
-						<span className="font-mono text-3xl font-bold text-accent-green">
-							&gt;
-						</span>
-						<h1 className="font-mono text-3xl font-bold text-text-primary">
-							shame_leaderboard
-						</h1>
-					</div>
-					<p className="font-mono text-sm text-text-secondary">
-						the worst code on the internet, ranked by shame
-					</p>
-					<Suspense fallback={<LeaderboardPageStatsSkeleton />}>
-						<LeaderboardStats />
-					</Suspense>
-				</section>
-
-				<Suspense fallback={<LeaderboardPageSkeleton />}>
-					<LeaderboardList />
-				</Suspense>
-			</div>
-		</main>
+		<Suspense fallback={<ShameLeaderboardSkeleton />}>
+			<ShameLeaderboardData totalSubmissions={totalSubmissions} />
+		</Suspense>
 	);
 }
 
-function LeaderboardPageStatsSkeleton() {
-	return (
-		<div className="flex items-center gap-2">
-			<span className="h-4 w-16 animate-pulse rounded bg-text-tertiary/20" />
-			<span className="font-mono text-xs text-text-tertiary">submissions</span>
-			<span className="font-mono text-xs text-text-tertiary">·</span>
-			<span className="h-4 w-12 animate-pulse rounded bg-text-tertiary/20" />
-			<span className="font-mono text-xs text-text-tertiary">avg score</span>
-		</div>
-	);
-}
-
-async function LeaderboardStats() {
+async function ShameLeaderboardData({
+	totalSubmissions: _totalSubmissions,
+}: {
+	totalSubmissions: number;
+}) {
 	const caller = createCaller({});
-	const { totalSubmissions, averageScore } = await caller.getGlobalMetrics();
-
-	return (
-		<GlobalMetrics
-			totalSubmissions={totalSubmissions}
-			averageScore={averageScore}
-		/>
-	);
-}
-
-async function LeaderboardList() {
-	const caller = createCaller({});
-	const entries = await caller.getLeaderboard({ limit: 20, offset: 0 });
+	const entries = await caller.getShameLeaderboard({ limit: 3 });
 
 	return (
 		<section className="flex flex-col gap-5">
@@ -140,5 +97,24 @@ async function LeaderboardList() {
 				<LeaderboardEntryCard key={entry.id} entry={entry} />
 			))}
 		</section>
+	);
+}
+
+export function ShameLeaderboardFooter({
+	totalSubmissions,
+}: {
+	totalSubmissions: number;
+}) {
+	const formatted = new Intl.NumberFormat("en-US", {
+		notation: "compact",
+	}).format(totalSubmissions);
+
+	return (
+		<Link
+			href="/leaderboard"
+			className="px-4 py-3 text-center font-mono text-xs text-text-tertiary hover:text-text-secondary"
+		>
+			showing top 3 of {formatted} · view full leaderboard &gt;&gt;
+		</Link>
 	);
 }

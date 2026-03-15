@@ -1,8 +1,14 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { CodeEditorSection } from "@/components/code-editor-section";
 import { GlobalMetricsWithSuspense } from "@/components/global-metrics-with-suspense";
-import { LeaderboardTableWithData } from "@/components/leaderboard-table";
 import { Section } from "@/components/section";
+import {
+	ShameLeaderboardFooter,
+	ShameLeaderboardWithSuspense,
+} from "@/components/shame-leaderboard";
+import { ShameLeaderboardSkeleton } from "@/components/shame-leaderboard-skeleton";
+
+export const dynamic = "force-dynamic";
 
 export default function HomePage() {
 	return (
@@ -28,7 +34,7 @@ export default function HomePage() {
 				{/* Code Editor Section */}
 				<CodeEditorSection />
 
-				{/* Stats - Server Component with Suspense */}
+				{/* Stats - Server Component with animation */}
 				<GlobalMetricsWithSuspense />
 			</div>
 
@@ -41,21 +47,33 @@ export default function HomePage() {
 				<Section.Description>
 					{"//"} the worst code on the internet, ranked by shame
 				</Section.Description>
-				<Section.Content>
-					<div className="overflow-hidden rounded-md border border-border-primary">
-						<LeaderboardTableWithData />
-					</div>
-				</Section.Content>
-				<Link
-					href="/leaderboard"
-					className="px-4 py-3 text-center font-mono text-xs text-text-tertiary hover:text-text-secondary"
+				<Suspense
+					fallback={
+						<Section.Content>
+							<ShameLeaderboardSkeleton />
+						</Section.Content>
+					}
 				>
-					showing top 3 of 2,847 · view full leaderboard &gt;&gt;
-				</Link>
+					<HomePageWithData />
+				</Suspense>
 			</Section>
 
 			{/* Bottom Spacer */}
 			<div className="h-16" />
 		</main>
+	);
+}
+
+async function HomePageWithData() {
+	const caller = (await import("@/server/routers/_app")).createCaller({});
+	const { totalSubmissions } = await caller.getGlobalMetrics();
+
+	return (
+		<>
+			<Section.Content>
+				<ShameLeaderboardWithSuspense totalSubmissions={totalSubmissions} />
+			</Section.Content>
+			<ShameLeaderboardFooter totalSubmissions={totalSubmissions} />
+		</>
 	);
 }
