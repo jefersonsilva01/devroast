@@ -29,7 +29,9 @@ export function ShareButton({
 			const { fromJsx } = await import("@takumi-rs/helpers/jsx");
 
 			await wasm.default();
-			const renderer = new wasm.Renderer();
+			const renderer = new wasm.Renderer({
+				loadDefaultFonts: true,
+			} as never);
 
 			const { node, stylesheets } = await fromJsx(
 				<div
